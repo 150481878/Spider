@@ -1,0 +1,28 @@
+from bs4 import BeautifulSoup
+import requests
+import time
+url = 'https://movie.douban.com/top250'
+urls = ['https://movie.douban.com/top250?start={000}&filter='.format(str(i)) for i in range(0, 250, 25)]
+
+headers={
+    'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36",
+    'Cookie': 'device_id=13f98506ea113d8b2b37d8c25ad7590b; cookiesu=801586578020700; s=c9126r5hy7; xq_a_token=723519cbf9dd65d648ac70595aaa4716b03f1a17; xqat=723519cbf9dd65d648ac70595aaa4716b03f1a17; xq_r_token=c664d747fa47219f890ed69c36f4940cc9dd13d8; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOjEwMDEzMDIwOTUsImlzcyI6InVjIiwiZXhwIjoxNTg5MTcwMDQ1LCJjdG0iOjE1ODY1NzgwNDU1NTksImNpZCI6ImQ5ZDBuNEFadXAifQ.X3g4gTe6cJfTzk9JLBsrLUjFXyHnxz6xTOuO9kzGTApwfzxGtNCeyDV4pod5yOcbqh7Eb_0-kKKVqYN4cCG3lNsbJJdWH7zGdBxju8WKHeQV_hBr9qQk0huK2jHWV03I0gufLHKtKqZESbrBChBXrcd9HhealBP3u80nwjIS0XMYfNJhKnEAtiiW8UoSgHfvlFkbkYNdJtLS1bYDHGdu2yA8A8B2hClAGg1dzrcByFLwKYJ8yNj70oMcddd62cHl6dKwJVgBAbsspaztt2R3MNiaL86y-2NwuzbC3FWA1o-rgdBocGkAWpATPc1VzQLweiSbB9f2mnVYH9pLY_uakA; xq_is_login=1; u=1001302095; bid=5d20886db165f1d28e0dc6516de37ff9_k8v3mblv; acw_tc=2760825015880108372048363e4ccce905d2e1f51d4305a65d34661d203fa0; __utmz=1.1588608298.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); aliyungf_tc=AQAAAB+CZS7HoA0AFKSSe+h8XWFCHU6r; Hm_lvt_1db88642e346389874251b5a1eded6e3=1588515931,1588608270,1588608326,1588639615; __utma=1.1874420055.1588608298.1588608298.1588662499.2; __utmc=1; is_overseas=0; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1588664661; snbim_minify=true'
+}
+
+def get_attractions(url,data=None):
+    wb_data=requests.get(url,headers=headers)
+    time.sleep(2)
+    soup=BeautifulSoup(wb_data.text,'lxml')
+    ranks=soup.select('#content > div > div.article > ol > li > div > div.pic > em')
+    titles=soup.select('#content > div > div.article > ol > li > div > div.info > div.hd > a > span:nth-child(1)')
+    points=soup.select('#content > div > div.article > ol > li > div > div.info > div.bd > div > span.rating_num')
+    for rank,title,point in zip(ranks,titles,points):
+        data={
+            'rank':rank.get_text(),
+            'title':title.get_text(),
+            'point':point.get_text()
+        }
+        print(data)
+
+for single_url in urls:
+    get_attractions(single_url)
